@@ -1,0 +1,7 @@
+name = Platform Checkout
+description = Platform Checkout module enables a user to checkout a platform and perform various functions on it
+package = Hosting
+dependencies[] = hosting
+dependencies[] = hosting_package
+
+core = 6.x

@@ -1,0 +1,7 @@
+name = Security
+description = Perform Security checks on sites and platforms
+package = Hosting
+dependencies[] = hosting
+dependencies[] = hosting_package
+
+core = 6.x

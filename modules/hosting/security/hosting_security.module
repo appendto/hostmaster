@@ -1,0 +1,159 @@
+<?
+
+function hosting_security_node_info() {
+  $types["security"] =  array(
+    "type" => 'security', "name" => 'Security',
+    "module" => 'hosting_security',
+    "has_title" => true, "title_label" => t('Security'),
+    "description" => hosting_node_help("security"),
+    "has_body" => 0, "body_label" => '', "min_word_count" => 0);
+  return $types;
+}
+
+function hosting_security_hosting_tasks() {
+    $options = array();
+
+    $options['site']['modulesecuritycheck'] = array(
+        'title' => t('Security - Module Test'),
+        'description' => t('Run a security check on the sites modules code.'),
+        'weight' => 15
+    );
+    $options['site']['sitesecuritytest'] = array(
+        'title' => t('Security - Site Test'),
+        'description' => t('Run a security check on the site.'),
+        'weight' => 16
+    );
+    $options['platform']['platformsecuritytest'] = array(
+        'title' => t('Security - Platform Test'),
+        'description' => t('Run a security check on the platform.'),
+        'weight' => 11
+    );
+    return $options;
+}
+
+function hosting_security_perm() {
+    return array(
+        'site security test',
+        'module security test',
+        'platform security test',
+        'security access',
+    );
+}
+
+function hosting_security_menu() {
+  $items = array();
+  $items['hosting/security'] = array(
+    'title' => 'Security Testing',
+    'description' => 'Available Security Tests',
+    'page callback' => 'hosting_security_listing',
+    'access arguments' => array('security access'));
+
+  return $items;
+}
+
+
+function hosting_security_listing() {
+  $services = _hosting_get_security();
+
+  $header = array(t('Platform') , t('Secure'), t('Sites'), t('Secure'));
+
+  $rows[] = array();
+
+  $total = 0;
+  foreach ($services as $nid => $title) {
+    $row = array();
+    $node = node_load($nid);
+    $row[] = array('class' => 'hosting-status' , 'data' => _hosting_node_link($nid));
+    $row[] = "No Test Run";
+    $total += $count = hosting_site_count($nid);
+    $row[] = $count;
+    $row[] = "No Tests Run";
+    $rows[] = array('data' => $row, 'class' => _hosting_platform_list_class($node));
+  }
+  $row = array();
+  $row[] = array('data' => t('Total Exportables'), 'colspan' => 4);
+  $row[] = $total;
+  $rows[] = $row;
+
+  return theme('table',  $header, $rows, array('class' => 'hosting-table'));
+}
+
+function _hosting_get_security() {
+  $return = array();
+  $result = db_query("SELECT n.nid, n.title FROM {node} n LEFT JOIN {hosting_platform} h ON n.nid = h.nid
+                      WHERE n.type='platform' AND n.status=1 AND h.status <> %d ORDER BY n.title", HOSTING_PLATFORM_DELETED);
+  while($server = db_fetch_object($result)) {
+    $return[$server->nid] = $server->title;
+  }
+  return $return;
+}
+
+function hosting_task_modulesecuritycheck_form($node) {
+   $list =  __security_test_list("module");
+  if (sizeof($list)) {
+    $form['testid'] = array(
+      '#type' => 'radios',
+      '#title' => t('Tests'),
+      '#options' => $list,
+      '#required' => TRUE
+    );
+  }
+  else {
+    $form['no_tests'] = array(
+      '#type' => 'item',
+      '#title' => t('Tests'),
+      '#value' => t('There are no tests available for modules.')
+    );
+  }
+  return $form;
+}
+
+
+function hosting_task_sitesecuritytest_form() {
+  $list =  __security_test_list("site");
+  if (sizeof($list)) {
+    $form['testid'] = array(
+      '#type' => 'radios',
+      '#title' => t('Tests'),
+      '#options' => $list,
+      '#required' => TRUE
+    );
+  }
+  else {
+    $form['no_tests'] = array(
+      '#type' => 'item',
+      '#title' => t('Tests'),
+      '#value' => t('There are no tests available for sites.')
+    );
+  }
+  return $form;
+}
+
+function hosting_task_platformsecuritytest_form() {
+   $list =  __security_test_list("platform");
+  if (sizeof($list)) {
+    $form['testid'] = array(
+      '#type' => 'radios',
+      '#title' => t('Tests'),
+      '#options' => $list,
+      '#required' => TRUE
+    );
+  }
+  else {
+    $form['no_tests'] = array(
+      '#type' => 'item',
+      '#title' => t('Tests'),
+      '#value' => t('There are no tests available for platforms.')
+    );
+  }
+  return $form;
+}
+
+function __security_test_list($type)
+{
+  $result = db_query("SELECT tid, test_name, test_information FROM hosting_security WHERE type='".$type."'");
+  while ($object = db_fetch_object($result)) {
+    $tests[$object->tid] = '<strong>' . $object->test_name . '</strong> - ' . $object->test_information;
+  }
+  return $tests;
+}

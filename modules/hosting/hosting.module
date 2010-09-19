@@ -226,7 +226,11 @@ function hosting_node_help($type) {
                 Each task acts as a command for the back-end, and contains a full log of all changes that have occurred.
                 If a task should fail, the administrator will be notified with an explanation of exactly what went wrong,
                 and how to fix it.");
-      break;      
+      break;
+    case 'security' :
+        return t("All about the security module");
+        break;
+    
   }
 }
 

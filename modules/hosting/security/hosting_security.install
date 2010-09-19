@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function hosting_security_schema() {
+
+    $schema['hosting_security'] = array(
+        'fields' => array(
+            'tid' => array(
+                'type' => 'serial',
+                'not null' => TRUE,
+            ),
+            'test_name' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => 'none',
+            ),
+            'test_information' => array(
+                'type' => 'text',
+                'size' => 'big',
+                'not null' => TRUE,
+            ),
+            'type' => array(
+                'type' => 'varchar',
+                'length' => 30,
+                'not null' => TRUE,
+                'default' => 'site',
+            ),
+            'test_command' => array(
+                'type' => 'text',
+                'size' => 'big',
+                'not null' => TRUE,
+            ),
+        ),
+        'primary key' => array('tid'),
+    );
+
+    $schema['hosting_security_results'] = array(
+        'fields' => array(
+            'secid' => array(
+                'type' => 'serial',
+                'not null' => TRUE,
+            ),
+            'nid' => array(
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'testid' => array(
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'results' => array(
+                'type' => 'text',
+                'size' => 'big',
+                'not null' => TRUE,
+            ),
+        ),
+        'primary key' => array('secid'),
+    );
+
+
+    return $schema;
+}
+
+function hosting_security_install() {
+    // Create tables.
+    drupal_install_schema('hosting_security');
+}
+
+function hosting_security_uninstall() {
+    // Remove tables.
+    drupal_uninstall_schema('hosting_security');
+}
