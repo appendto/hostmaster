@@ -1,4 +1,0 @@
-<?php
-function hosting_security_schema() {
- //platform checkout record
-}
