@@ -1,0 +1,4 @@
+<?php
+function hosting_staging_checkout_schema() {
+ //platform checkout record
+}

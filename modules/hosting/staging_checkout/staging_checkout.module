@@ -1,0 +1,60 @@
+<?php
+
+function hosting_staging_checkout_node_info() {
+  $types["staging_checkout"] =  array(
+    "type" => 'staging_checkout', "name" => 'staging Checkout',
+    "module" => 'staging_checkout',
+    "has_title" => true, "title_label" => t('staging Checkout'),
+    "description" => hosting_node_help("staging_checkout"),
+    "has_body" => 0, "body_label" => '', "min_word_count" => 0);
+  return $types;
+}
+
+function hosting_staging_checkout_hosting_tasks() {
+    $options = array();
+
+    $options['site']['checkout'] = array(
+        'title' => t('Checkout'),
+        'description' => t('Development to Staging.'),
+        'weight' => 1
+    );
+    return $options;
+}
+
+function hosting_platform_checkout_perm() {
+    return array(
+        'development to staging'
+    );
+}
+
+function hosting_staging_checkout_menu() {
+  $items = array();
+  $items['hosting/stagingcheckout'] = array(
+    'title' => 'staging Checkout',
+    'description' => 'staging Checkout',
+    'page callback' => 'hosting_staging_checkout',
+    'access arguments' => array('staging'));
+
+  return $items;
+}
+
+function hosting_staging_checkout_menu_access($node, $task) {
+  if (user_access("checkout a staging")) {
+    if ($node->type == 'staging') {
+      // if the user can't edit this node, he can't create tasks on it
+      if (!node_access('update', $node, $GLOBALS['user'])) {
+        return FALSE;
+      }
+      // If the staging is in a deleted state, nothing else can be done with it
+      if (hosting_task_outstanding($node->nid, 'delete') || ($node->platform_status ==  HOSTING_PLATFORM_DELETED)) {
+        return FALSE;
+      }
+    
+      $platform_tasks = array('verify', 'lock', 'delete', 'migrate');
+      return (in_array($task, $platform_tasks));
+    }
+
+  }
+  return FALSE;
+}
+

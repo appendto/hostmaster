@@ -1,0 +1,7 @@
+name = Staging Checkout
+description = Staging Checkout to be run after checking out a development copy, this stage is for final testing
+package = Hosting
+dependencies[] = hosting
+dependencies[] = hosting_package
+
+core = 6.x
